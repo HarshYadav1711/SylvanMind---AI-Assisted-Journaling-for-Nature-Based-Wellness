@@ -1,19 +1,12 @@
-import { MongoClient, Db } from "mongodb";
+import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI ?? "mongodb://localhost:27017/sylvanmind";
 
-let client: MongoClient | null = null;
-let db: Db | null = null;
-
-export async function connectToDatabase(): Promise<Db> {
-  if (db) return db;
-  client = new MongoClient(MONGODB_URI);
-  await client.connect();
-  db = client.db();
-  return db;
+export async function connectToDatabase(): Promise<void> {
+  if (mongoose.connection.readyState === 1) return;
+  await mongoose.connect(MONGODB_URI);
 }
 
-export function getDb(): Db {
-  if (!db) throw new Error("Database not connected. Call connectToDatabase first.");
-  return db;
+export function disconnectDatabase(): Promise<void> {
+  return mongoose.disconnect();
 }

@@ -36,6 +36,13 @@ npm run dev
 
 Backend runs at `http://localhost:3001` by default.
 
+To seed the database with example users and journal entries (development):
+
+```bash
+cd backend
+npm run seed
+```
+
 ### Frontend
 
 ```bash

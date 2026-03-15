@@ -1,14 +1,30 @@
-import { ObjectId } from "mongodb";
-import { getDb } from "../utils/db";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-export interface User {
-  _id: ObjectId;
-  name?: string;
+export interface IUser extends Document {
+  name: string;
+  email: string;
   createdAt: Date;
 }
 
-const COLLECTION = "users";
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+      maxlength: [120, "Name cannot exceed 120 characters"],
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      trim: true,
+      lowercase: true,
+      unique: true,
+      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
+    },
+  },
+  { timestamps: true }
+);
 
-export function getUsersCollection() {
-  return getDb().collection<User>(COLLECTION);
-}
+export const User: Model<IUser> =
+  mongoose.models.User ?? mongoose.model<IUser>("User", userSchema);
