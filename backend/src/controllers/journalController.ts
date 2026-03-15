@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 import * as journalService from "../services/journalService";
 import * as analysisService from "../services/analysisService";
+import * as insightsService from "../services/insightsService";
 import { asyncHandler } from "../utils/asyncHandler";
 import { validateCreateJournalBody } from "../utils/validateJournal";
 import { AppError } from "../utils/errors";
@@ -38,4 +40,16 @@ export const analyzeJournal = asyncHandler(async (req: Request, res: Response) =
     keywords: result.keywords,
     summary: result.summary,
   });
+});
+
+export const getInsightsByUserId = asyncHandler(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  if (!userId) {
+    throw new AppError("userId is required", 400);
+  }
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new AppError("Invalid userId format", 400);
+  }
+  const insights = await insightsService.getInsights(userId);
+  res.json({ data: insights });
 });
