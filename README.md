@@ -55,6 +55,8 @@ npm run dev
 
 Frontend runs at `http://localhost:3000` by default.
 
+**User ID:** The app uses a single user for journal and insights. After running the backend seed, copy a user `_id` from the database and either set `NEXT_PUBLIC_DEFAULT_USER_ID` in `.env.local` or enter it once on the Journal page (it is stored in localStorage).
+
 ## Cost
 
 All tools used are free and do not require billing or credit cards (HuggingFace free inference tier, MongoDB Atlas free tier, natural package).

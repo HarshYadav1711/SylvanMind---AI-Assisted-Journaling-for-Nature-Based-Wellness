@@ -13,11 +13,10 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export async function getEntries(userId: string): Promise<JournalEntry[]> {
-  return fetchApi<JournalEntry[]>(`/entries?userId=${encodeURIComponent(userId)}`);
-}
-
-export async function getEntry(id: string): Promise<JournalEntry> {
-  return fetchApi<JournalEntry>(`/entries/${id}`);
+  const res = await fetchApi<{ data: JournalEntry[] }>(
+    `/journal/${encodeURIComponent(userId)}`
+  );
+  return res.data;
 }
 
 export async function createEntry(data: {
@@ -25,16 +24,23 @@ export async function createEntry(data: {
   text: string;
   ambience: "forest" | "ocean" | "mountain";
 }): Promise<JournalEntry> {
-  return fetchApi<JournalEntry>("/entries", {
+  const res = await fetchApi<{ data: JournalEntry }>("/journal", {
     method: "POST",
     body: JSON.stringify(data),
   });
+  return res.data;
 }
 
-export async function analyzeEntry(entryId: string): Promise<AnalysisResult> {
-  return fetchApi<AnalysisResult>(`/entries/${entryId}/analyze`, { method: "POST" });
+export async function analyzeText(text: string): Promise<AnalysisResult> {
+  return fetchApi<AnalysisResult>("/journal/analyze", {
+    method: "POST",
+    body: JSON.stringify({ text }),
+  });
 }
 
 export async function getInsights(userId: string): Promise<Insights> {
-  return fetchApi<Insights>(`/insights?userId=${encodeURIComponent(userId)}`);
+  const res = await fetchApi<{ data: Insights }>(
+    `/journal/insights/${encodeURIComponent(userId)}`
+  );
+  return res.data;
 }
