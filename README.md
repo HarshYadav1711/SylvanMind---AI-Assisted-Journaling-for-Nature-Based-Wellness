@@ -173,7 +173,8 @@ GET /api/journal/insights/507f1f77bcf86cd799439011
     "totalEntries": 12,
     "topEmotion": "joy",
     "mostUsedAmbience": "forest",
-    "recentKeywords": ["calm", "trees", "walking", "today", "morning"]
+    "recentKeywords": ["calm", "trees", "walking", "today", "morning"],
+    "emotionDistribution": { "joy": 42, "calm": 33, "neutral": 25 }
   }
 }
 ```

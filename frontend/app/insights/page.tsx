@@ -11,6 +11,7 @@ export default function InsightsPage() {
     topEmotion: string | null;
     mostUsedAmbience: string | null;
     recentKeywords: string[];
+    emotionDistribution: Record<string, number>;
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +102,28 @@ export default function InsightsPage() {
             <p className="mt-2 font-serif text-xl capitalize text-sage-800">
               {insights.mostUsedAmbience ?? "—"}
             </p>
+          </div>
+          <div className="rounded-lg border border-sage-200 bg-white p-5 shadow-sm sm:col-span-2">
+            <h2 className="text-xs font-medium uppercase tracking-wide text-stone-500">
+              Emotion distribution
+            </h2>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+              {Object.keys(insights.emotionDistribution).length === 0 ? (
+                <span className="text-stone-500">No analyzed entries yet</span>
+              ) : (
+                Object.entries(insights.emotionDistribution)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([emotion, pct]) => (
+                    <span
+                      key={emotion}
+                      className="text-sm text-sage-800"
+                    >
+                      <span className="capitalize">{emotion}</span>{" "}
+                      <span className="font-medium">{pct}%</span>
+                    </span>
+                  ))
+              )}
+            </div>
           </div>
           <div className="rounded-lg border border-sage-200 bg-white p-5 shadow-sm sm:col-span-2">
             <h2 className="text-xs font-medium uppercase tracking-wide text-stone-500">

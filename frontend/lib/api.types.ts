@@ -3,4 +3,5 @@ export interface Insights {
   topEmotion: string | null;
   mostUsedAmbience: string | null;
   recentKeywords: string[];
+  emotionDistribution: Record<string, number>;
 }

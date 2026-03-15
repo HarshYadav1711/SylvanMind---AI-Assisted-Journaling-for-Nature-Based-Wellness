@@ -6,6 +6,7 @@ export interface Insights {
   topEmotion: string | null;
   mostUsedAmbience: string | null;
   recentKeywords: string[];
+  emotionDistribution: Record<string, number>;
 }
 
 const RECENT_KEYWORDS_ENTRY_LIMIT = 15;
@@ -17,6 +18,7 @@ export async function getInsights(userId: string): Promise<Insights> {
     totalEntries: { total: number }[];
     topEmotion: { _id: string }[];
     mostUsedAmbience: { _id: string }[];
+    emotionCounts: { _id: string; count: number }[];
     recentKeywords: { keywords: string[] }[];
   }>([
     { $match: { userId: uid } },
@@ -34,6 +36,10 @@ export async function getInsights(userId: string): Promise<Insights> {
           { $sort: { count: -1 } },
           { $limit: 1 },
         ],
+        emotionCounts: [
+          { $match: { "analysis.emotion": { $exists: true, $ne: "" } } },
+          { $group: { _id: "$analysis.emotion", count: { $sum: 1 } } },
+        ],
         recentKeywords: [
           { $sort: { createdAt: -1 } },
           { $limit: RECENT_KEYWORDS_ENTRY_LIMIT },
@@ -49,12 +55,21 @@ export async function getInsights(userId: string): Promise<Insights> {
       topEmotion: null,
       mostUsedAmbience: null,
       recentKeywords: [],
+      emotionDistribution: {},
     };
   }
 
   const totalEntries = result.totalEntries[0]?.total ?? 0;
   const topEmotion = result.topEmotion[0]?._id ?? null;
   const mostUsedAmbience = result.mostUsedAmbience[0]?._id ?? null;
+  const emotionCounts = result.emotionCounts ?? [];
+  const totalAnalyzed = emotionCounts.reduce((sum, e) => sum + e.count, 0);
+  const emotionDistribution: Record<string, number> =
+    totalAnalyzed === 0
+      ? {}
+      : Object.fromEntries(
+          emotionCounts.map((e) => [e._id, Math.round((e.count / totalAnalyzed) * 100)])
+        );
 
   const seen = new Set<string>();
   const recentKeywords: string[] = [];
@@ -75,5 +90,6 @@ export async function getInsights(userId: string): Promise<Insights> {
     topEmotion,
     mostUsedAmbience,
     recentKeywords,
+    emotionDistribution,
   };
 }
