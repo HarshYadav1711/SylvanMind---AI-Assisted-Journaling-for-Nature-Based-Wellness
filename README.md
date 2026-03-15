@@ -35,6 +35,37 @@ SylvanMind is an AI-assisted journaling app for reflective writing and nature-ba
 
 ---
 
+## System Architecture
+
+```mermaid
+flowchart TB
+  subgraph Client
+    FE[Next.js Frontend]
+  end
+
+  subgraph Backend
+    API[Express API Backend]
+  end
+
+  subgraph Data
+    DB[(MongoDB Database)]
+  end
+
+  subgraph External
+    Redis[Redis Cache]
+    HF[HuggingFace Inference API]
+  end
+
+  FE -->|HTTP /api/*| API
+  API -->|Read/Write journal entries, users| DB
+  API -->|Check/store analysis by text hash| Redis
+  API -->|Emotion, summarization| HF
+```
+
+The frontend talks only to the Express API. The API persists data in MongoDB, caches analysis results in Redis, and calls HuggingFace for emotion and summarization when analyzing text. See [docs/architecture.md](docs/architecture.md) for component details.
+
+---
+
 ## Project Structure
 
 ```
