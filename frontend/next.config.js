@@ -2,8 +2,9 @@
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:3001";
 
+// Standalone output is for Docker/self-hosted; Vercel uses its own pipeline and 404s with standalone
 const nextConfig = {
-  output: "standalone",
+  ...(process.env.VERCEL ? {} : { output: "standalone" }),
   async rewrites() {
     return [
       {

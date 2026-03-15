@@ -346,6 +346,23 @@ After seeding, the script prints the demo user’s `_id`. Use that ID in the fro
 
 ---
 
+## Deploying to Vercel
+
+This repo is a **monorepo**: the Next.js app lives in `frontend/`. If you deploy from the repo root without changing the root directory, Vercel will serve a **404** because there is no app at the root.
+
+**Fix:**
+
+1. In the [Vercel dashboard](https://vercel.com/dashboard), open your project.
+2. Go to **Settings** → **General**.
+3. Under **Root Directory**, click **Edit**, set it to **`frontend`**, and save.
+4. **Redeploy** (Deployments → … on the latest → Redeploy).
+
+After that, Vercel will build and serve the Next.js app from `frontend/`.
+
+**Environment variables:** Add `NEXT_PUBLIC_API_URL` in Vercel (Project → Settings → Environment Variables) and set it to your **backend** URL (e.g. a Node host like Railway, Render, or Fly.io). The frontend proxies `/api/*` to that URL. Without it, API requests will fail or point at localhost.
+
+---
+
 ## Future Improvements
 
 - **Authentication** — Replace client-supplied `userId` with server-verified identity (e.g. OAuth or JWT) so journal data is properly isolated and secure.
