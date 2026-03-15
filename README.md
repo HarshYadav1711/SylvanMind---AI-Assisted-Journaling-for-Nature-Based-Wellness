@@ -103,6 +103,22 @@ The frontend talks only to the Express API. The API persists data in MongoDB, ca
 
 ---
 
+## Demo
+
+A short GIF can show the main flow in one place:
+
+![SylvanMind demo: journal entry, analysis, insights](docs/demo.gif)
+
+**Adding the GIF:** Save your recording as `docs/demo.gif`. The GIF should include:
+
+1. **Writing a journal entry** — Type a few sentences in the Journal editor, choose an ambience (forest, ocean, or mountain), and save.
+2. **Running emotion analysis** — Click **Analyze** on the Journal page and show the result (emotion, keywords, summary).
+3. **Viewing insights** — Open the Insights page and show the dashboard (total entries, top emotion, most used ambience, emotion distribution, recent keywords).
+
+Keep the clip short (e.g. 15–30 seconds). Use a screen recorder (e.g. LICEcap, ScreenToGif, or your OS built-in tool), then export as GIF and place at `docs/demo.gif`.
+
+---
+
 ## API Endpoints
 
 Base URL: `/api`. All JSON. Success responses that return a resource or list use a `data` wrapper; analysis returns a flat object.

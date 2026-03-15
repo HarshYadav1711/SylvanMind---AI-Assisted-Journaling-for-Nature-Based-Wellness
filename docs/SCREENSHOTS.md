@@ -15,3 +15,5 @@ Place the three files in the repo as:
 - `docs/insights.png`
 
 The README references these paths; once the files exist, the images will render in the Demo Screenshots section.
+
+**Animated demo:** For a short walkthrough GIF, add `docs/demo.gif` showing (1) writing a journal entry, (2) running analysis, (3) viewing the Insights page. See the README **Demo** section for instructions.
