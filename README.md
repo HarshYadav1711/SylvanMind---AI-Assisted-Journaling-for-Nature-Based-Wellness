@@ -117,64 +117,134 @@ Base URL: `/api`. All JSON. Success responses that return a resource or list use
 
 **Validation:** Create entry requires non-empty `text`, `ambience` in `forest` | `ocean` | `mountain`, and `userId`. Analyze requires non-empty `text`. List and insights require `userId` as a valid 24-char hex MongoDB ObjectId.
 
-### Example: Create entry
+---
+
+### POST /api/journal — Create a journal entry
+
+**Request**
 
 ```http
 POST /api/journal
 Content-Type: application/json
+```
 
+```json
 {
-  "userId": "507f1f77bcf86cd799439011",
-  "text": "Today I felt calm walking by the trees.",
+  "userId": "674a1b2c3d4e5f6789abcdef",
+  "text": "Morning walk in the woods. The light through the leaves and the sound of birds made everything else fade away.",
   "ambience": "forest"
 }
 ```
 
+**Response** `201 Created`
+
 ```json
 {
   "data": {
-    "_id": "...",
-    "userId": "507f1f77bcf86cd799439011",
-    "text": "Today I felt calm walking by the trees.",
+    "_id": "674a1b2c3d4e5f6789abc123",
+    "userId": "674a1b2c3d4e5f6789abcdef",
+    "text": "Morning walk in the woods. The light through the leaves and the sound of birds made everything else fade away.",
     "ambience": "forest",
-    "createdAt": "2025-03-15T12:00:00.000Z"
+    "createdAt": "2025-03-15T09:30:00.000Z"
   }
 }
 ```
 
-### Example: Analyze text
+---
+
+### POST /api/journal/analyze — Analyze journal text
+
+**Request**
 
 ```http
 POST /api/journal/analyze
 Content-Type: application/json
-
-{
-  "text": "Today I felt calm walking by the trees."
-}
 ```
 
 ```json
 {
-  "emotion": "neutral",
-  "keywords": ["calm", "trees", "walking", "today"],
-  "summary": "The author felt calm while walking near trees."
+  "text": "Sat by the ocean for an hour. Waves coming in, one after another. Grateful for this place and for having time to just be here."
 }
 ```
 
-### Example: Get insights
+**Response** `200 OK` (no `data` wrapper; result is cached by text hash when Redis is available)
+
+```json
+{
+  "emotion": "gratitude",
+  "keywords": ["ocean", "waves", "grateful", "time", "place"],
+  "summary": "Time spent by the ocean inspired gratitude and a sense of being present."
+}
+```
+
+---
+
+### GET /api/journal/:userId — List journal entries
+
+**Request**
 
 ```http
-GET /api/journal/insights/507f1f77bcf86cd799439011
+GET /api/journal/674a1b2c3d4e5f6789abcdef
 ```
+
+**Response** `200 OK`
+
+Entries are ordered newest first. Each may include an `analysis` object if it was analyzed and stored.
+
+```json
+{
+  "data": [
+    {
+      "_id": "674a1b2c3d4e5f6789abc125",
+      "userId": "674a1b2c3d4e5f6789abcdef",
+      "text": "Evening at the beach. The sound of the waves is the only thing that slows my mind down.",
+      "ambience": "ocean",
+      "createdAt": "2025-03-15T18:00:00.000Z",
+      "analysis": {
+        "emotion": "calm",
+        "keywords": ["beach", "waves", "evening", "mind"],
+        "summary": "An evening by the ocean helped quiet the mind.",
+        "analyzedAt": "2025-03-15T18:01:00.000Z"
+      }
+    },
+    {
+      "_id": "674a1b2c3d4e5f6789abc124",
+      "userId": "674a1b2c3d4e5f6789abcdef",
+      "text": "Reached the ridge at sunrise. Cold air, huge sky. I felt completely alive.",
+      "ambience": "mountain",
+      "createdAt": "2025-03-14T07:15:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### GET /api/journal/insights/:userId — Get aggregated insights
+
+**Request**
+
+```http
+GET /api/journal/insights/674a1b2c3d4e5f6789abcdef
+```
+
+**Response** `200 OK`
+
+`emotionDistribution` gives the percentage of analyzed entries per emotion (integers, sum ≤ 100). `recentKeywords` are drawn from recent entries’ analysis; `topEmotion` and `mostUsedAmbience` are the most frequent values.
 
 ```json
 {
   "data": {
-    "totalEntries": 12,
-    "topEmotion": "joy",
+    "totalEntries": 5,
+    "topEmotion": "calm",
     "mostUsedAmbience": "forest",
-    "recentKeywords": ["calm", "trees", "walking", "today", "morning"],
-    "emotionDistribution": { "joy": 42, "calm": 33, "neutral": 25 }
+    "recentKeywords": ["walk", "woods", "light", "birds", "ocean", "waves"],
+    "emotionDistribution": {
+      "calm": 40,
+      "gratitude": 20,
+      "joy": 20,
+      "neutral": 20
+    }
   }
 }
 ```
