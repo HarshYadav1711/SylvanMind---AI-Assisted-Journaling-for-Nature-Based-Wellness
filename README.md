@@ -212,16 +212,7 @@ npm run dev
 
 Backend: `http://localhost:3001`.
 
-### 3. Seed (development)
-
-```bash
-cd backend
-npm run seed
-```
-
-Creates two users and sample entries. Use one of the user `_id` values in the frontend.
-
-### 4. Frontend
+### 3. Frontend
 
 ```bash
 cd frontend
@@ -235,19 +226,37 @@ Edit `.env.local`: set `NEXT_PUBLIC_API_URL` (e.g. `http://localhost:3001`) and 
 npm run dev
 ```
 
-Frontend: `http://localhost:3000`. If no default user ID is set, open the Journal page and enter a seeded user `_id`; it is stored in localStorage.
+Frontend: `http://localhost:3000`. If no default user ID is set, open the Journal page and enter a user `_id` (e.g. from the demo seed; see [Running Demo Data](#running-demo-data)).
 
-### 5. Docker (optional)
+### 4. Docker (optional)
 
 ```bash
 docker compose up --build
 ```
 
-MongoDB and Redis run in containers; backend and frontend are built and served. To pass a HuggingFace key: `HUGGINGFACE_API_KEY=your_token docker compose up --build`. Seed after startup:
+MongoDB and Redis run in containers; backend and frontend are built and served. To pass a HuggingFace key: `HUGGINGFACE_API_KEY=your_token docker compose up --build`. To load demo data after startup:
 
 ```bash
-docker compose run --rm backend node dist/scripts/seed.js
+docker compose run --rm backend node dist/scripts/seedDemoData.js
 ```
+
+---
+
+## Running Demo Data
+
+From the `backend` directory, run:
+
+```bash
+npm run seed
+```
+
+This runs the demo seed script (`src/scripts/seedDemoData.ts`), which:
+
+1. **Inserts one demo user** — Email `demo@sylvanmind.app`, name "Demo User".
+2. **Inserts 5 journal entries** — Different ambiences (forest, ocean, mountain) and emotions (calm, gratitude, joy, neutral), with realistic text and pre-filled analysis.
+3. **Skips if data exists** — If a user with that email is already present, the script exits without inserting anything.
+
+After seeding, the script prints the demo user’s `_id`. Use that ID in the frontend (Journal page or `NEXT_PUBLIC_DEFAULT_USER_ID`) to view the demo entries and insights.
 
 ---
 
