@@ -89,6 +89,36 @@ If you did not set `NEXT_PUBLIC_DEFAULT_USER_ID`, open the **Journal** page and 
 
 ---
 
+## Run with Docker
+
+With Docker and Docker Compose installed, you can run the full stack locally:
+
+```bash
+docker compose up --build
+```
+
+- **MongoDB** — `localhost:27017` (data in volume `mongodb_data`)
+- **Redis** — `localhost:6379`
+- **Backend** — `http://localhost:3001`
+- **Frontend** — `http://localhost:3000`
+
+The frontend is built with `NEXT_PUBLIC_API_URL=http://localhost:3001` so the browser can call the API. To pass a HuggingFace API key for analysis, set it in the environment before starting:
+
+```bash
+export HUGGINGFACE_API_KEY=your_token
+docker compose up --build
+```
+
+To seed the database after the stack is up (backend container inherits `MONGODB_URI` from Compose):
+
+```bash
+docker compose run --rm backend node dist/scripts/seed.js
+```
+
+Then use a user `_id` from the seeded data in the frontend (Journal page or `NEXT_PUBLIC_DEFAULT_USER_ID`).
+
+---
+
 ## API endpoints
 
 All API routes are prefixed with `/api`. Success responses that return a single resource or list use a `data` wrapper; analysis returns a flat object.
