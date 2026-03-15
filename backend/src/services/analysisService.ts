@@ -1,18 +1,39 @@
+import * as huggingface from "./huggingface";
+import { extractKeywords } from "./keywordService";
+import {
+  analysisCacheKey,
+  getCachedAnalysis,
+  setCachedAnalysis,
+  type CachedAnalysis,
+} from "../utils/cache";
+
 export interface AnalysisResult {
   emotion: string;
   keywords: string[];
   summary: string;
 }
 
-/**
- * Analyze journal text for emotion, keywords, and summary.
- * Implementation will use HuggingFace inference API with fallback to natural for keywords.
- */
-export async function analyzeText(_text: string): Promise<AnalysisResult> {
-  // Stub: not implemented yet
-  return {
-    emotion: "",
-    keywords: [],
-    summary: "",
+export async function analyzeText(text: string): Promise<AnalysisResult> {
+  const trimmed = text.trim();
+  const key = analysisCacheKey(trimmed);
+
+  const cached = await getCachedAnalysis(key);
+  if (cached) {
+    return cached;
+  }
+
+  const [emotion, keywords, summary] = await Promise.all([
+    huggingface.fetchEmotion(trimmed),
+    Promise.resolve(extractKeywords(trimmed)),
+    huggingface.fetchSummary(trimmed),
+  ]);
+
+  const result: AnalysisResult = {
+    emotion,
+    keywords,
+    summary: summary || trimmed.slice(0, 200),
   };
+
+  await setCachedAnalysis(key, result);
+  return result;
 }
