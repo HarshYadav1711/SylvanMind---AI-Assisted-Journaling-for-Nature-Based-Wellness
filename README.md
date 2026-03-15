@@ -55,8 +55,20 @@ SylvanMind is an AI-assisted journaling app for reflective writing and nature-ba
 │   ├── lib/               # API client, hooks (e.g. useUserId)
 │   └── public/
 ├── ARCHITECTURE.md        # Scaling, caching, privacy notes
+├── docs/               # Documentation and demo screenshots (see docs/SCREENSHOTS.md)
+├── ARCHITECTURE.md     # Scaling, caching, privacy notes
 └── README.md
 ```
+
+---
+
+## Demo Screenshots
+
+| Journal editor | Analysis results | Insights dashboard |
+|----------------|------------------|--------------------|
+| ![Journal editor](docs/editor.png) | ![Analysis results](docs/analysis.png) | ![Insights dashboard](docs/insights.png) |
+
+*Placeholder images: add `docs/editor.png`, `docs/analysis.png`, and `docs/insights.png` per [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) to show the journal editor, analysis results, and insights dashboard.*
 
 ---
 
