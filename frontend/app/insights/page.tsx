@@ -5,7 +5,7 @@ import { getInsights } from "@/lib/api";
 import { useUserId } from "@/lib/useUserId";
 
 export default function InsightsPage() {
-  const [userId] = useUserId();
+  const [userId, , mounted] = useUserId();
   const [insights, setInsights] = useState<{
     totalEntries: number;
     topEmotion: string | null;
@@ -39,6 +39,17 @@ export default function InsightsPage() {
       cancelled = true;
     };
   }, [userId]);
+
+  if (!mounted) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <h1 className="font-serif text-2xl font-medium text-sage-800">
+          Insights
+        </h1>
+        <p className="mt-4 text-sm text-stone-500">Loading…</p>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">

@@ -25,7 +25,7 @@ function formatDate(s: string) {
 }
 
 export default function JournalPage() {
-  const [userId, setUserId] = useUserId();
+  const [userId, setUserId, mounted] = useUserId();
   const [text, setText] = useState("");
   const [ambience, setAmbience] = useState<Ambience>("forest");
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -36,14 +36,20 @@ export default function JournalPage() {
   const [error, setError] = useState<string | null>(null);
 
   const loadEntries = useCallback(async () => {
-    if (!userId.trim()) {
+    const id = userId.trim();
+    if (!id) {
       setEntries([]);
+      return;
+    }
+    if (id.length !== 24 || !/^[a-f0-9]+$/i.test(id)) {
+      setEntries([]);
+      setError(null);
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const list = await getEntries(userId);
+      const list = await getEntries(id);
       setEntries(list);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load entries");
@@ -100,29 +106,47 @@ export default function JournalPage() {
     }
   }
 
+  if (!mounted) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <h1 className="font-serif text-2xl font-medium text-sage-800">
+          Journal
+        </h1>
+        <p className="mt-4 text-sm text-stone-500">Loading…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <h1 className="font-serif text-2xl font-medium text-sage-800">
         Journal
       </h1>
 
-      {!userId && (
-        <div className="mt-6 rounded-lg border border-sage-200 bg-sage-50/50 p-4">
-          <label className="block text-sm font-medium text-stone-700">
-            Your user ID
-          </label>
-          <p className="mt-1 text-sm text-stone-600">
-            Set this once (use an ID from the seed data or your backend).
-          </p>
-          <input
-            type="text"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="e.g. 507f1f77bcf86cd799439011"
-            className="mt-2 w-full rounded-md border border-sage-300 bg-white px-3 py-2 text-sm text-stone-800 placeholder-stone-400 focus:border-sage-500 focus:outline-none focus:ring-1 focus:ring-sage-500"
-          />
-        </div>
-      )}
+      {(() => {
+        const valid =
+          userId.trim().length === 24 && /^[a-f0-9]+$/i.test(userId.trim());
+        if (valid) return null;
+        return (
+          <div className="mt-6 rounded-lg border border-sage-200 bg-sage-50/50 p-4">
+            <label className="block text-sm font-medium text-stone-700">
+              Your user ID
+            </label>
+            <p className="mt-1 text-sm text-stone-600">
+              {userId.trim()
+                ? "Use a valid 24-character ID from seed data (e.g. from MongoDB after running npm run seed)."
+                : "Set this once (use an ID from the seed data or your backend)."}
+            </p>
+            <input
+              type="text"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              placeholder="e.g. 507f1f77bcf86cd799439011"
+              className="mt-2 w-full rounded-md border border-sage-300 bg-white px-3 py-2 text-sm text-stone-800 placeholder-stone-400 focus:border-sage-500 focus:outline-none focus:ring-1 focus:ring-sage-500"
+            />
+          </div>
+        );
+      })()}
 
       <section className="mt-8">
         <label className="block text-sm font-medium text-stone-700">
@@ -204,7 +228,11 @@ export default function JournalPage() {
           <p className="mt-2 text-sm text-stone-500">Loading…</p>
         ) : entries.length === 0 ? (
           <p className="mt-2 text-sm text-stone-500">
-            {userId ? "No entries yet. Write something above." : "Set your user ID to see entries."}
+            {!userId.trim()
+              ? "Set your user ID to see entries."
+              : userId.trim().length !== 24 || !/^[a-f0-9]+$/i.test(userId.trim())
+                ? "Use a valid 24-character user ID (e.g. from seed data)."
+                : "No entries yet. Write something above."}
           </p>
         ) : (
           <ul className="mt-3 space-y-3">

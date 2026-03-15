@@ -1,15 +1,26 @@
 import type { JournalEntry, AnalysisResult } from "@/types/journal";
 import type { Insights } from "./api.types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}/api${path}`, {
+  const url = `/api${path}`;
+  const res = await fetch(url, {
     ...options,
     headers: { "Content-Type": "application/json", ...options?.headers },
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const text = await res.text();
+  if (!res.ok) {
+    if (text.startsWith("<!") || text.includes("</html>")) {
+      throw new Error(
+        "Backend request failed. Ensure the backend is running (e.g. npm run dev in backend) and reachable."
+      );
+    }
+    throw new Error(text || `Request failed (${res.status})`);
+  }
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error("Invalid JSON response from server");
+  }
 }
 
 export async function getEntries(userId: string): Promise<JournalEntry[]> {

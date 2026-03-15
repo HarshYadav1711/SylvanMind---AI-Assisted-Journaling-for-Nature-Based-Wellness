@@ -5,8 +5,17 @@ import { JournalEntry } from "../models/JournalEntry";
 
 dotenv.config();
 
+const SEED_EMAILS = ["alex@example.com", "sam@example.com"];
+
 async function seed() {
   await connectToDatabase();
+
+  const existing = await User.find({ email: { $in: SEED_EMAILS } }).select("_id");
+  if (existing.length > 0) {
+    const ids = existing.map((u) => u._id);
+    await JournalEntry.deleteMany({ userId: { $in: ids } });
+    await User.deleteMany({ email: { $in: SEED_EMAILS } });
+  }
 
   const users = await User.insertMany([
     { name: "Alex River", email: "alex@example.com" },

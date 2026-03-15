@@ -4,14 +4,16 @@ import { useState, useEffect, useCallback } from "react";
 
 const STORAGE_KEY = "sylvanmind_user_id";
 
-export function useUserId(): [string, (id: string) => void] {
+export function useUserId(): [string, (id: string) => void, boolean] {
   const [userId, setUserIdState] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored =
       typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     const env = process.env.NEXT_PUBLIC_DEFAULT_USER_ID ?? "";
     setUserIdState(stored ?? env);
+    setMounted(true);
   }, []);
 
   const setUserId = useCallback((id: string) => {
@@ -22,5 +24,5 @@ export function useUserId(): [string, (id: string) => void] {
     }
   }, []);
 
-  return [userId, setUserId];
+  return [userId, setUserId, mounted];
 }

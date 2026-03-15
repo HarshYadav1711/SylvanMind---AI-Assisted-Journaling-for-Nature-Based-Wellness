@@ -35,7 +35,6 @@ const journalEntrySchema = new Schema<IJournalEntry>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "userId is required"],
-      index: true,
     },
     text: {
       type: String,
