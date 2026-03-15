@@ -348,18 +348,36 @@ After seeding, the script prints the demo user’s `_id`. Use that ID in the fro
 
 ## Deploying to Vercel
 
-This repo is a **monorepo**: the Next.js app lives in `frontend/`. If you deploy from the repo root without changing the root directory, Vercel will serve a **404** because there is no app at the root.
+This repo is a **monorepo**: the Next.js app lives in **`frontend/`**. If Vercel uses the repo root, you get a **404** because there is no app at the root.
 
-**Fix:**
+### Option A: Set Root Directory (dashboard)
 
 1. In the [Vercel dashboard](https://vercel.com/dashboard), open your project.
 2. Go to **Settings** → **General**.
-3. Under **Root Directory**, click **Edit**, set it to **`frontend`**, and save.
-4. **Redeploy** (Deployments → … on the latest → Redeploy).
+3. Under **Root Directory**, click **Edit**.
+4. Enter exactly **`frontend`** (no leading slash, no trailing slash, no `./`). Save.
+5. Under **Build and Development Settings**, leave **Framework Preset** as **Next.js** and **Output Directory** blank (do not override).
+6. **Redeploy**: **Deployments** → **…** on the latest → **Redeploy** (optionally check “Clear build cache”).
 
-After that, Vercel will build and serve the Next.js app from `frontend/`.
+### Option B: Deploy from the frontend folder (CLI)
 
-**Environment variables:** Add `NEXT_PUBLIC_API_URL` in Vercel (Project → Settings → Environment Variables) and set it to your **backend** URL (e.g. a Node host like Railway, Render, or Fly.io). The frontend proxies `/api/*` to that URL. Without it, API requests will fail or point at localhost.
+If the dashboard root still gives 404, deploy with the CLI so the project root is the frontend:
+
+```bash
+cd frontend
+npx vercel
+```
+
+Follow the prompts (link to an existing project or create a new one). The deployment will use `frontend` as the root, so the app should load. You can then attach your custom domain to this project.
+
+### If you still get 404
+
+- **Build logs:** Open the latest deployment → **Building** tab. Confirm the build runs from the `frontend` directory (paths like `frontend/package.json`, `frontend/.next`). If you see only `package.json` at the repo root and no Next.js build step, Root Directory is not applied—try Option B (deploy from `frontend` via CLI).
+- **Output Directory:** In **Settings** → **General** → **Build and Development Settings**, leave **Output Directory** empty. Do not set it to `frontend` or `.next`.
+
+### Environment variables
+
+In Vercel: **Settings** → **Environment Variables**. Add **`NEXT_PUBLIC_API_URL`** and set it to your backend URL (e.g. Railway, Render, Fly.io). The frontend proxies `/api/*` to that URL.
 
 ---
 
