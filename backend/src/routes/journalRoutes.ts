@@ -3,9 +3,7 @@ import * as journalController from "../controllers/journalController";
 
 const router = Router();
 
-router.post("/entries", journalController.createEntry);
-router.get("/entries", journalController.getEntries);
-router.get("/entries/:id", journalController.getEntryById);
-router.post("/entries/:id/analyze", journalController.analyzeEntry);
+router.post("/journal", journalController.createEntry);
+router.get("/journal/:userId", journalController.getEntriesByUserId);
 
 export default router;

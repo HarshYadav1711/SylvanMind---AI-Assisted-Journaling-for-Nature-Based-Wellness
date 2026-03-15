@@ -1,45 +1,27 @@
 import { Request, Response } from "express";
 import * as journalService from "../services/journalService";
-import * as analysisService from "../services/analysisService";
 import { asyncHandler } from "../utils/asyncHandler";
+import { validateCreateJournalBody } from "../utils/validateJournal";
+import { AppError } from "../utils/errors";
 
 export const createEntry = asyncHandler(async (req: Request, res: Response) => {
-  const { userId, text, ambience } = req.body;
-  if (!userId || !text || !ambience) {
-    res.status(400).json({ error: "userId, text, and ambience are required" });
-    return;
+  const result = validateCreateJournalBody(req.body);
+  if (!result.valid) {
+    throw new AppError(result.message, 400);
   }
-  const entry = await journalService.createEntry({ userId, text, ambience });
-  res.status(201).json(entry);
+  const entry = await journalService.createEntry({
+    userId: result.userId,
+    text: result.text,
+    ambience: result.ambience,
+  });
+  res.status(201).json({ data: entry });
 });
 
-export const getEntries = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.query.userId as string;
+export const getEntriesByUserId = asyncHandler(async (req: Request, res: Response) => {
+  const { userId } = req.params;
   if (!userId) {
-    res.status(400).json({ error: "userId query is required" });
-    return;
+    throw new AppError("userId is required", 400);
   }
   const entries = await journalService.getEntriesByUserId(userId);
-  res.json(entries);
-});
-
-export const getEntryById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const entry = await journalService.getEntryById(id);
-  if (!entry) {
-    res.status(404).json({ error: "Entry not found" });
-    return;
-  }
-  res.json(entry);
-});
-
-export const analyzeEntry = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const entry = await journalService.getEntryById(id);
-  if (!entry) {
-    res.status(404).json({ error: "Entry not found" });
-    return;
-  }
-  const analysis = await analysisService.analyzeText(entry.text);
-  res.json(analysis);
+  res.json({ data: entries });
 });

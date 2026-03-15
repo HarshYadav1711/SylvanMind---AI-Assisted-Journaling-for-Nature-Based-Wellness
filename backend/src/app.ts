@@ -1,11 +1,7 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import cors from "cors";
 import { routes } from "./routes";
-
-function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
-  console.error(err);
-  res.status(500).json({ error: err.message ?? "Internal server error" });
-}
+import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
   const app = express();
