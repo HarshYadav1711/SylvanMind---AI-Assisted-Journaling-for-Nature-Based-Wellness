@@ -133,6 +133,8 @@ Base URL: `/api`. All JSON. Success responses that return a resource or list use
 
 **Validation:** Create entry requires non-empty `text`, `ambience` in `forest` | `ocean` | `mountain`, and `userId`. Analyze requires non-empty `text`. List and insights require `userId` as a valid 24-char hex MongoDB ObjectId.
 
+**Rate limiting:** All `/api` routes are limited to 100 requests per IP per 15 minutes. The analysis endpoint `POST /api/journal/analyze` has a stricter limit of 20 requests per IP per 15 minutes to protect the NLP pipeline and control cost. When a limit is exceeded, the API responds with `429` and a JSON body `{ "error": "..." }`. Response headers include `RateLimit-*` (standard headers).
+
 ---
 
 ### POST /api/journal — Create a journal entry
